@@ -15,6 +15,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("Database");
+builder.Services.AddOutputCache(x =>
+{
+    x.AddBasePolicy(c => c.Cache());
+    x.AddPolicy("BooksCache", c => 
+    {
+        c.Cache()
+            .Expire(TimeSpan.FromMinutes(1))
+            .Tag("Books");
+
+    });
+});
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
@@ -105,6 +116,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseResponseCaching();
+app.UseOutputCache();
 
 app.UseMiddleware<ValidationMappingMiddleware>();
 app.MapControllers();

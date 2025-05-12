@@ -7,6 +7,7 @@ using Library.Api.Mapping;
 using Library.Api.Models.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace Library.Api.Controllers.V1
 {
@@ -15,14 +16,17 @@ namespace Library.Api.Controllers.V1
     public class BooksController : Controller
     {
         private readonly IBookServices _bookServices;
-        public BooksController(IBookServices bookServices)
+        private readonly IOutputCacheStore _outputCacheStore;
+        public BooksController(IBookServices bookServices, IOutputCacheStore outputCacheStore)
         {
             _bookServices = bookServices;
+            _outputCacheStore = outputCacheStore;   
         }
 
         [HttpGet(ApiEndpoints.V1.Books.GetAll)]
         [AllowAnonymous]
         [ResponseCache(Duration = 30, VaryByHeader = "Accept, Accept-Encoding", Location = ResponseCacheLocation.Any)]
+        [OutputCache(PolicyName = "BooksCache")]
         public async Task<IActionResult> GetAllBooks([FromQuery] GetAllBooksRequest request, CancellationToken token)
         {
             try
@@ -68,6 +72,7 @@ namespace Library.Api.Controllers.V1
                 {
                     return BadRequest("Something went wrong !");
                 }
+                await _outputCacheStore.EvictByTagAsync("Books",token);
                 return Ok($"{result} --> has been created!");
             }
             catch (InvalidOperationException ex)
@@ -86,6 +91,7 @@ namespace Library.Api.Controllers.V1
                 {
                     return BadRequest("The book has not found !");
                 }
+                await _outputCacheStore.EvictByTagAsync("Books", token);
                 return Ok($"{result} --> The Book has been updated !");
             }
             catch (InvalidOperationException ex)
@@ -105,6 +111,7 @@ namespace Library.Api.Controllers.V1
                 {
                     return BadRequest("Book has not found !");
                 }
+                await _outputCacheStore.EvictByTagAsync("Books", token);
                 return Ok($"{result} -->  has been deleted !");
             }
             catch (InvalidOperationException ex)
