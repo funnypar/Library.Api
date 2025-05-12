@@ -3,6 +3,7 @@ using Business.Helpers;
 using Business.Mapping;
 using DataAccess;
 using Library.Api.Auth;
+using Library.Api.Health;
 using Library.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +13,8 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("Database");
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
@@ -96,6 +99,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.MapHealthChecks("_health");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
