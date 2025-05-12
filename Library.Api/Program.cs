@@ -103,6 +103,9 @@ app.MapHealthChecks("_health");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseResponseCaching();
+
 app.UseMiddleware<ValidationMappingMiddleware>();
 app.MapControllers();
 app.Run();

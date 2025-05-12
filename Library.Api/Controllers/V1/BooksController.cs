@@ -20,8 +20,9 @@ namespace Library.Api.Controllers.V1
             _bookServices = bookServices;
         }
 
-        [AllowAnonymous]
         [HttpGet(ApiEndpoints.V1.Books.GetAll)]
+        [AllowAnonymous]
+        [ResponseCache(Duration = 30, VaryByHeader = "Accept, Accept-Encoding", Location = ResponseCacheLocation.Any)]
         public async Task<IActionResult> GetAllBooks([FromQuery] GetAllBooksRequest request, CancellationToken token)
         {
             try
@@ -37,6 +38,7 @@ namespace Library.Api.Controllers.V1
         }
         [AllowAnonymous]
         [HttpGet(ApiEndpoints.V1.Books.Get)]
+        [ResponseCache(Duration = 30, VaryByHeader = "Accept, Accept-Encoding", Location = ResponseCacheLocation.Any)]
         public async Task<IActionResult> GetBook([FromQuery] GetAllBooksRequest request, [FromRoute] string idOrSlug, CancellationToken token)
         {
             try
